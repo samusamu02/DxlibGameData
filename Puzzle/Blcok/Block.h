@@ -20,7 +20,6 @@ public:
 	unsigned int GetBlcokMoveCont(void);	// ブロックの移動
 	float GetLimitTime(void);
 
-
 protected:
 	unsigned int score_ = 0;				// スコア
 	unsigned int clearScore_ = 900;			// クリアに必要なスコア

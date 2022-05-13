@@ -1,10 +1,10 @@
 #pragma once
 #include <DxLib.h>
-#include <list>
+#include <array>
 class Image
 {
 public:
-	int blockPic_[10];
+	std::array<int,10> blockPic_;
 	void LoadImg(void)
 	{
 		blockPic_[0] = LoadGraph("img/cookies_001.png");
