@@ -1,17 +1,32 @@
 #include <DxLib.h>
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-    ChangeWindowMode(true), DxLib_Init(), SetDrawScreen(DX_SCREEN_BACK); //ウィンドウモード変更と初期化と裏画面設定
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+{
+	SetGraphMode(640, 480, 16);
+	ChangeWindowMode(true);
 
-    int image[16];
-    LoadDivGraph("images/Characters/player.png", 16, 4, 4, 48, 48, image); // 画像の分割読み込み
+	// ＤＸライブラリ初期化処理
+	if (DxLib_Init() == -1)
+	{
+		// エラーが起きたら直ちに終了
+		return -1;
+	}
 
-        // while(裏画面を表画面に反映, メッセージ処理, 画面クリア)
-    while (ScreenFlip() == 0 && ProcessMessage() == 0 && ClearDrawScreen() == 0) {
+	SetDrawScreen(DX_SCREEN_BACK);
+	// メインループ、ＥＳＣキーで終了
+	while (!ProcessMessage() && !(CheckHitKey(KEY_INPUT_ESCAPE)))
+	{
+		// 画面を初期化
+		ClearDrawScreen();
 
-        DrawGraph(0, 0, image[1], true);      // 画像を表示
-    }
+		// 裏画面の内容を表画面に反映させます
+		ScreenFlip();
 
-    DxLib_End(); // DXライブラリ終了処理
-    return 0;
+	}
+
+	// ＤＸライブラリ使用の終了処理
+	DxLib_End();
+
+	// ソフトの終了
+	return 0;
 }
