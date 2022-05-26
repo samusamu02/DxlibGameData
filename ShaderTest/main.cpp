@@ -68,8 +68,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	int image = LoadGraph(L"image/cookie.png");
-	int normImg = LoadGraph(L"image/cookie_n.png");
 	int bg = LoadGraph(L"image/bg.jpg");
+	int normImg = LoadGraph(L"image/cookie_n.png");
 	int pt = LoadGraph(L"image/ptn.png");
 	int ps = LoadPixelShader(L"SamplePS.pso");
 
@@ -101,7 +101,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		threshold[1] = angle;
 		DxLib::UpdateShaderConstantBuffer(cBuff);
 		SetShaderConstantBuffer(cBuff, DX_SHADERTYPE_PIXEL, 0);
-		ShadeDrawGraph(50, -20, image, pt, ps, normImg);
+		ShadeDrawGraph(50, -20, image, pt, normImg, ps);
 
 		ScreenFlip();
 	}
