@@ -55,8 +55,8 @@ PS_OUTPUT main(PS_INPUT input)
 	float edge = 1.0 - saturate(abs(threshold - discVal));
 	edge = pow(1.0 - saturate(abs(threshold - input.uv.y)), 3);
 	edge = pow(edge, 20);
-	float m = fmod(input.uv.x + input.uv.y, 0.1) * 10;
+	// float m = fmod(input.uv.x + input.uv.y, 0.1) * 10;
 	//output.color.rgb = 1.0 - output.color.rgb;		// F‚ğ”½“]
-	output.color.rgb = float3 (0, 1, 0) * edge + (output.color.rgb * bright * m) * (1.0 - edge); // float3(0,pow(edge,20), 0);
+	output.color.rgb = float3 (0, 1, 0) * edge + (output.color.rgb * bright/* * m*/) * (1.0 - edge); // float3(0,pow(edge,20), 0);
 	return output;
 }

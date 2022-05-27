@@ -21,5 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SamplePS.hlsl" />
+    <FxCompile Include="PostProcess.hlsl" />
   </ItemGroup>
 </Project>

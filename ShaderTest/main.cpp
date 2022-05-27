@@ -68,11 +68,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	int image = LoadGraph(L"image/cookie.png");
-	int bg = LoadGraph(L"image/bg.jpg");
+	int bg = LoadGraph(L"image/bg.png");
 	int normImg = LoadGraph(L"image/cookie_n.png");
 	int pt = LoadGraph(L"image/ptn.png");
 	int ps = LoadPixelShader(L"SamplePS.pso");
-
+	int psPP = LoadPixelShader(L"PostProcess.pso");
+	int imgPP = LoadGraph(L"image/CrackNormalMap.png");
 
 	// ①定数バッファの確保(VRAM上のメモリを確保）
 	int cBuff = DxLib::CreateShaderConstantBuffer(sizeof(float) * 4);		// ハンドルIDみたいなやつ
@@ -82,8 +83,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	float data = 0.0f;
 	float angle = 0.0f;
 	char keystate[256];
+
+	int sw, sh;
+	GetDrawScreenSize(&sw, &sh);
+	int handleforPP = DxLib::MakeScreen(sw, sh);
+	int shakeTime = 0;
 	while (ProcessMessage() != -1)
 	{
+		SetDrawScreen(handleforPP);
 		angle += 0.001f;
 		GetHitKeyStateAll(keystate);
 		if (keystate[KEY_INPUT_UP])
@@ -94,6 +101,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			data += 0.01f;
 		}
+
+		if (keystate[KEY_INPUT_SPACE])
+		{
+			shakeTime = 60;
+		}
+
+		if (shakeTime > 0)
+		{
+			--shakeTime;
+		}
+
 		ClearDrawScreen();
 		// DrawGraph(0,0,image,true);
 		DrawGraph(0, 0, bg, true);
@@ -101,7 +119,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		threshold[1] = angle;
 		DxLib::UpdateShaderConstantBuffer(cBuff);
 		SetShaderConstantBuffer(cBuff, DX_SHADERTYPE_PIXEL, 0);
-		ShadeDrawGraph(50, -20, image, pt, normImg, ps);
+		ShadeDrawGraph(120,50, image, pt, normImg, ps);
+		SetDrawScreen(DX_SCREEN_BACK);
+		ShadeDrawGraph(0,0,handleforPP,imgPP,-1,psPP);
 
 		ScreenFlip();
 	}
