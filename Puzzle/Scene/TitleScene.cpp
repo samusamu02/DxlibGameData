@@ -1,6 +1,5 @@
 #include <DxLib.h>
 #include "TitleScene.h"
-#include "TutorialScene.h"
 #include "MenuScene.h"
 #include "../SceneMag.h"
 #include "../Blcok/image.h"

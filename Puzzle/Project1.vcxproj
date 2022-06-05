@@ -144,7 +144,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Blcok\Block.cpp" />
-    <ClCompile Include="Blcok\Tutorial.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SceneMag.cpp" />
     <ClCompile Include="Scene\BaseScene.cpp" />
@@ -153,12 +152,10 @@
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Scene\MenuScene.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
-    <ClCompile Include="Scene\TutorialScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blcok\Block.h" />
     <ClInclude Include="Blcok\image.h" />
-    <ClInclude Include="Blcok\Tutorial.h" />
     <ClInclude Include="common\Dec.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="detail\Vector2.h" />
@@ -169,7 +166,6 @@
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Scene\MenuScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
-    <ClInclude Include="Scene\TutorialScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

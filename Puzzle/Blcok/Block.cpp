@@ -315,15 +315,11 @@ void Block::Draw(void)
 	DrawGraph(0, -32, blueFrameCong_, true);
 
 	// ƒtƒHƒ“ƒg
-	//DrawFormatStringToHandle(250, 30, 0x000000, FontHundle, "%d", static_cast<int>(limitTime));
-	//DrawFormatStringToHandle(710, 250, 0x00000, FontHundle, "%u", score_);
-	//DrawFormatStringToHandle(800, 500, 0x00000, FontHundle, "%u", blockmoveCount_);
-	//DrawFormatStringToHandle(550, 30, 0x00000, FontHundle, "%u", clearScore_);
-
-	//DrawFormatStringToHandle(250, 30, 0xffa500, FontHundle, "%d", static_cast<int>(limitTime));
-	//DrawFormatStringToHandle(710, 250, 0xffa500, FontHundle, "%u", score_);
-	//DrawFormatStringToHandle(800, 500, 0xffa500, FontHundle, "%u", blockmoveCount_);
+	DrawFormatStringToHandle(800, 350, 0xffa500, FontHundle, "%d", static_cast<int>(limitTime));
+	DrawFormatStringToHandle(800, 230, 0xffa500, FontHundle, "%u", score_);
 	//DrawFormatStringToHandle(550, 30, 0xffa500, FontHundle, "%u", clearScore_);
+	//DrawFormatStringToHandle(800, 500, 0xffa500, FontHundle, "%u", blockmoveCount_);
+
 
 
 	//

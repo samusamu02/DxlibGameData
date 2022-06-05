@@ -1,7 +1,6 @@
 #pragma once
 #include<memory>
 #include"../common/Vector2.h"
-#include"../Blcok/Tutorial.h"
 #include "../Blcok/Block.h"
 class BaseScene;
 // usingで短く
@@ -36,7 +35,6 @@ protected:
 
 	Vector2 screenSize_;		// 描画先のサイズ
 	Key key_;		// キーの情報取得
-	Tutorial* tutorial_;
 	Block* block_;
 };
 
