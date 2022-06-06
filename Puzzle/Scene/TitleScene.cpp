@@ -1,6 +1,6 @@
 #include <DxLib.h>
 #include "TitleScene.h"
-#include "MenuScene.h"
+#include "GameScene.h"
 #include "../SceneMag.h"
 #include "../Blcok/image.h"
 #include "../common/Dec.h"
@@ -30,7 +30,7 @@ uniqueScene TitleScene::Updata(double delta, uniqueScene ownScene)
 	key_.GetKey();	// キーの情報取得
 	if (key_.input[KEY_INPUT_SPACE] == 2)
 	{
-		return std::make_unique<MenuScene>();
+		return std::make_unique<GameScene>();
 	}
 
 	DrawOwnScreen(delta);		// 自分のスクリーン対して描画情報を与える

@@ -16,21 +16,17 @@ public:
 
 	// get関数
 	unsigned int GetScore();				// スコアの取得
-	unsigned int GetClerarScore(void);		// クリアに必要なスコアの取得
-	unsigned int GetBlcokMoveCont(void);	// ブロックの移動
 	float GetLimitTime(void);
-
-protected:
-	unsigned int score_ = 0;				// スコア
-	unsigned int clearScore_ = 900;			// クリアに必要なスコア
-	Key key_;
 private:
 	void Init(void);
 
 	void Move(void);
 	void DeleBlock(void);
 	void DownBlock(void);
-	unsigned int blockmoveCount_ = 3;		// ブロックを動かせる回数ようのカウンター
+
+	unsigned int score_ = 0;				// スコア
+	Key key_;
+
 	int keyCount_ = 0;
 	// ブロックの大きさ
 	double blockMult_ = 0.0;
@@ -59,9 +55,8 @@ private:
 	// タイマー系
 	float setTime = 5.0f;
 	float startTime = 4.0f;
-	float limitTime = 30.0f;
-	float moveTime = 3.0f;
-	float respawnTime;	// ブロック再配置までの時間
+	float limitTime = 120.0f;
+	float respawnTime;							// ブロック再配置までの時間
 	float deltaTime = 0.018f;
 
 	// フォント画像の倍率を大きさ
@@ -81,6 +76,7 @@ private:
 	Vector2 clearScorePicPos;
 	Vector2 timePicPos;
 	Vector2  blockMoveCountPicPos;
+	Vector2 rankFontPic;
 
 	NowBlock nowBlock_;		// 現在のブロックの削除
 	Image image_;
@@ -93,6 +89,7 @@ private:
 	int selSelectorImage_;
 	int selSelectorPicSizeX_ = 1019;
 	int selSelectorPicSizeY_ = 767;
+
 	// 背景画像
 	int backImage_;
 	int backPicSizeX = 1024;
@@ -105,7 +102,18 @@ private:
 	int scorePic_;
 	int resultPic_;
 	int conditionPic_;
-	int untilscorePic_;
+
+	int rankS_;
+	int rankA_;
+	int rankB_;
+	int rankC_;
+	int rankD_;
+
+	int StopPicS_;
+	int StopPicA_;
+	int StopPicB_;
+	int StopPicC_;
+	int StopPicD_;
 
 	// 枠組み
 	int blueFrame_;
@@ -115,9 +123,6 @@ private:
 	int blueFrameMove_;
 	int blueFrameCong_;
 	int blueFrameTimeAndUntilscore_;
-
-	// BGM
-	int GameBGM_;
 
 	// 効果音
 	int ZkeySelectSE_;

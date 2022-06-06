@@ -147,10 +147,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SceneMag.cpp" />
     <ClCompile Include="Scene\BaseScene.cpp" />
-    <ClCompile Include="Scene\GameClearScene.cpp" />
-    <ClCompile Include="Scene\GameOverScene.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
-    <ClCompile Include="Scene\MenuScene.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,10 +158,7 @@
     <ClInclude Include="detail\Vector2.h" />
     <ClInclude Include="SceneMag.h" />
     <ClInclude Include="Scene\BaseScene.h" />
-    <ClInclude Include="Scene\GameClearScene.h" />
-    <ClInclude Include="Scene\GameOverScene.h" />
     <ClInclude Include="Scene\GameScene.h" />
-    <ClInclude Include="Scene\MenuScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

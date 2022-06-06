@@ -4,8 +4,6 @@
 #include"SceneMag.h"
 #include"Scene/TitleScene.h"
 #include"Scene/GameScene.h"
-#include"Scene/GameOverScene.h"
-#include"Scene/GameClearScene.h"
 #include"common/Dec.h"
 
 //SceneMag* SceneMag::s_Instance = nullptr;

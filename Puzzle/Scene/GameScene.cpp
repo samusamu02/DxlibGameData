@@ -1,8 +1,6 @@
 #include<DxLib.h>
 #include "GameScene.h"
 #include "TitleScene.h"
-#include "GameOverScene.h"
-#include "GameClearScene.h"
 GameScene::GameScene()
 {
 	Init();
@@ -25,23 +23,12 @@ uniqueScene GameScene::Updata(double delta, uniqueScene ownScene)
 	block_->Update();
 
 	// シーン分岐（ゲームクリア、ゲームオーバー）
-	if ((block_->GetBlcokMoveCont() == 0) || block_->GetLimitTime())
+	if (block_->GetLimitTime() < 0.0f)
 	{
-		if (block_->GetScore() >= block_->GetClerarScore())
+		if (key_.input[KEY_INPUT_SPACE] == 1)
 		{
-			if (key_.input[KEY_INPUT_SPACE] == 1)
-			{
-				delete block_;
-				return std::make_unique<GameClearScene>();
-			}
-		}
-		else
-		{
-			if (key_.input[KEY_INPUT_SPACE] == 1)
-			{
-				delete block_;
-				return std::make_unique<GameOverScene>();
-			}
+			delete block_;
+			return std::make_unique<TitleScene>();
 		}
 	}
 	DrawOwnScreen(delta);

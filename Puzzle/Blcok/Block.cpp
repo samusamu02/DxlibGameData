@@ -23,15 +23,6 @@ void Block::Init(void)
 			// ブロックをランダムに表示
 			nowBlock_.Type[x][y] = GetRand(9);
 
-			// ランダムではないブロックの表示
-			//nowBlock_.Type[0][1] = 1;
-			//nowBlock_.Type[1][1] = 1;
-			//nowBlock_.Type[2][1] = 1;
-
-			//nowBlock_.Type[5][3] = 2;
-			//nowBlock_.Type[5][4] = 2;
-			//nowBlock_.Type[5][5] = 2;
-
 			// 値の初期化
 			nowBlock_.Del[x][y] = 0;
 			nowBlock_.Drop[x][y] = 0;
@@ -49,19 +40,25 @@ void Block::Init(void)
 
 	// 文字画像
 	timePic_ = LoadGraph("img/Time.png");
-	scorePic_ = LoadGraph("img/Score.png");
 	blockMoveCountPic_ = LoadGraph("img/Move.png");
-	conditionPic_ = LoadGraph("img/condition.png");
-	untilscorePic_ = LoadGraph("img/Untilscore.png");
+	conditionPic_ = LoadGraph("img/ClearString.png");
+	scorePic_ = LoadGraph("img/ScorePic.png");
+	rankS_ = LoadGraph("img/S.png");
+	rankA_ = LoadGraph("img/A.png");
+	rankB_ = LoadGraph("img/B.png");
+	rankC_ = LoadGraph("img/C.png");
+	rankD_ = LoadGraph("img/D.png");
+	StopPicS_ = LoadGraph("img/stopPic_S.png");
+	StopPicA_ = LoadGraph("img/stopPic_A.png");
+	StopPicB_ = LoadGraph("img/stopPic_B.png");
+	StopPicC_ = LoadGraph("img/stopPic_C.png");
+	StopPicD_ = LoadGraph("img/stopPic_D.png");
 
 	// 枠組み
 	blueFrameBlock_ = LoadGraph("img/blueBlockFrame.png");
 	blueFrameMove_ = LoadGraph("img/blueFrameMove.png");
 	blueFrameCong_ = LoadGraph("img/blueConditionFrame.png");
 	blueFrameTimeAndUntilscore_ = LoadGraph("img/blueFrameTimeAndUntilscore.png");
-
-	// BGM 
-	GameBGM_ = LoadSoundMem("Sound/BGM/GameBGM.mp3");
 
 	// 効果音
 	ZkeySelectSE_ = LoadSoundMem("Sound/SE/Zselect.mp3");
@@ -82,49 +79,35 @@ void Block::Update(void)
 
 	Move();
 
-	if (blockmoveCount_ > 0)
+	if (ZkeyCount_ == 1)
 	{
-		if (ZkeyCount_ == 1)
+		// 一時変数で入れ替え処理
+		int change_block;
+		change_block = nowBlock_.Type[boxpos_.x_ / blockSize_.x_][boxpos_.y_ / blockSize_.y_];
+		nowBlock_.Type[boxpos_.x_ / blockSize_.x_][boxpos_.y_ / blockSize_.y_] = nowBlock_.Type[boxSelpos_.x_ / blockSize_.x_][boxSelpos_.y_ / blockSize_.y_];
+		nowBlock_.Type[boxSelpos_.x_ / blockSize_.x_][boxSelpos_.y_ / blockSize_.y_] = change_block;
+
+		boxSelpos_.x_ = boxpos_.x_;
+		boxSelpos_.y_ = boxpos_.y_;
+	}
+	else if (ZkeyCount_ == 2 || setTime < 0)
+	{
+		DeleBlock();
+
+		ZkeyCount_ = 0;
+
+		for (int y = 0; y < block_hight_; y++)
 		{
-			// 一時変数で入れ替え処理
-			int change_block;
-			change_block = nowBlock_.Type[boxpos_.x_ / blockSize_.x_][boxpos_.y_ / blockSize_.y_];
-			nowBlock_.Type[boxpos_.x_ / blockSize_.x_][boxpos_.y_ / blockSize_.y_] = nowBlock_.Type[boxSelpos_.x_ / blockSize_.x_][boxSelpos_.y_ / blockSize_.y_];
-			nowBlock_.Type[boxSelpos_.x_ / blockSize_.x_][boxSelpos_.y_ / blockSize_.y_] = change_block;
-
-			boxSelpos_.x_ = boxpos_.x_;
-			boxSelpos_.y_ = boxpos_.y_;
-		}
-		else if (ZkeyCount_ == 2)
-		{
-			DeleBlock();
-
-			respawnTime -= deltaTime;
-			//if (respawnTime < 0)
-			//{
-				ZkeyCount_ = 0;
-				respawnTime = 1.0f;
-
-				if (blockmoveCount_ > 0)
+			for (int x = 0; x < block_witdh_; x++)
+			{
+				// ブロックが消えたら
+				if (nowBlock_.Type[x][y] == -1)
 				{
-					blockmoveCount_--;
-					setTime = 5;
+					nowBlock_.Type[x][y] = GetRand(5);	// 再配置
+					nowBlock_.Del[x][y] = 0;
+					nowBlock_.Drop[x][y] = 0;
 				}
-
-				for (int y = 0; y < block_hight_; y++)
-				{
-					for (int x = 0; x < block_witdh_; x++)
-					{
-						// ブロックが消えたら
-						if (nowBlock_.Type[x][y] == -1)
-						{
-							nowBlock_.Type[x][y] = GetRand(5);	// 再配置
-							nowBlock_.Del[x][y] = 0;
-							nowBlock_.Drop[x][y] = 0;
-						}
-					}
-				}
-			//}
+			}
 		}
 	}
 }
@@ -304,8 +287,29 @@ void Block::Draw(void)
 	// 文字画像の描画
 	DrawGraph(0,-30, timePic_, true);
 	DrawGraph(720, 400, blockMoveCountPic_, true);
-	DrawGraph(0, -30, conditionPic_, true);
-	DrawGraph(0, -30, untilscorePic_, true);
+	DrawGraph(0, 0, conditionPic_, true);
+	DrawGraph(0, 0, scorePic_, true);
+
+	if (score_ < 3000)
+	{
+		DrawGraph(0, 0, rankD_, true);
+	}
+	else if (score_ >= 3000 && score_ < 6000)
+	{
+		DrawGraph(0, 0, rankC_, true);
+	}
+	else if (score_ >= 6000 && score_ < 10000)
+	{
+		DrawGraph(0, 0, rankB_, true);
+	}
+	else if (score_ >= 10000 && score_ < 20000)
+	{
+		DrawGraph(0, 0, rankA_, true);
+	}
+	else if (score_ >= 20000)
+	{
+		DrawGraph(0, 0, rankS_, true);
+	}
 
 	// 枠組みの表示
 	DrawGraph(30, -35, blueFrameBlock_, true);
@@ -317,12 +321,6 @@ void Block::Draw(void)
 	// フォント
 	DrawFormatStringToHandle(800, 350, 0xffa500, FontHundle, "%d", static_cast<int>(limitTime));
 	DrawFormatStringToHandle(800, 230, 0xffa500, FontHundle, "%u", score_);
-	//DrawFormatStringToHandle(550, 30, 0xffa500, FontHundle, "%u", clearScore_);
-	//DrawFormatStringToHandle(800, 500, 0xffa500, FontHundle, "%u", blockmoveCount_);
-
-
-
-	//
 
 	// 画像の描画
 	for (int y = 0; y < block_hight_; y++)
@@ -336,7 +334,7 @@ void Block::Draw(void)
 			if (blockMult_ >= 6)
 			{
 				// 選択用のブロック
-				if (blockmoveCount_ > 0 || (static_cast<int>(limitTime) >= 0))
+				if ((static_cast<int>(limitTime) >= 0))
 				{
 					if (x == boxpos_.x_ / blockSize_.x_ &&
 						y == boxpos_.y_ / blockSize_.y_)
@@ -344,11 +342,11 @@ void Block::Draw(void)
 						switch (ZkeyCount_)
 						{
 						case 0:
+							setTime = 5;
 							DrawBox(boxpos_.x_ + boxValX + 30, boxpos_.y_ + boxValY, boxpos_.x_ + blockSize_.x_ + boxValX + 30, boxpos_.y_ + blockSize_.y_ + boxValY, 0x00ffff, false);
 							break;
 						case 1:
 							DrawBox(boxSelpos_.x_ + boxValX + 30, boxSelpos_.y_ + boxValY, boxSelpos_.x_ + blockSize_.x_ + boxValX + 30, boxSelpos_.y_ + blockSize_.y_ + boxValY, 0xff00ff, false);
-
 
 							if (setTime >= 0)
 							{
@@ -356,12 +354,10 @@ void Block::Draw(void)
 							}
 							else if (setTime <= 0)
 							{
-								blockmoveCount_--;
 								ZkeyCount_ = 0;
-								setTime = 5;
 							}
 
-							DrawFormatString(boxSelpos_.x_ + boxValX, boxSelpos_.y_ + boxValY, 0xffffff, "%d", static_cast<int>(setTime));
+							DrawFormatString(boxSelpos_.x_ + boxValX + 30, boxSelpos_.y_ + boxValY, 0x0000ff, "%d", static_cast<int>(setTime));
 							break;
 						}
 					}
@@ -370,66 +366,56 @@ void Block::Draw(void)
 		}
 	}
 
-	if ((blockmoveCount_ == 0) || (static_cast<int>(limitTime) <= 0))
+	if ((static_cast<int>(limitTime) <= 0))
 	{
-
-		// ゲームクリア用のフィルター
-		if (score_ >= clearScore_)
+		for (int y = 0; y < block_hight_; y++)
 		{
-			for (int y = 0; y < block_hight_; y++)
+			for (int x = 0; x < block_witdh_; x++)
 			{
-				for (int x = 0; x < block_witdh_; x++)
+				GraphFilter(image_.blockPic_[nowBlock_.Type[x][y]], DX_GRAPH_FILTER_MONO, -1, 45);
+
+				if (score_ < 3000)
 				{
-					GraphFilter(image_.blockPic_[nowBlock_.Type[x][y]], DX_GRAPH_FILTER_MONO, -1, 45);
+					DrawGraph(0, 0, StopPicD_, true);
 				}
-			}
-		}
-
-		// ゲーム失敗用のフィルター
-		if (score_ < clearScore_)
-		{
-			for (int y = 0; y < block_hight_; y++)
-			{
-				for (int x = 0; x < block_witdh_; x++)
+				else if (score_ >= 3000 && score_ < 6000)
 				{
-					GraphFilter(image_.blockPic_[nowBlock_.Type[x][y]], DX_GRAPH_FILTER_MONO, 0, 30);
+					DrawGraph(0, 0, StopPicC_, true);
+				}
+				else if (score_ >= 6000 && score_ < 10000)
+				{
+					DrawGraph(0, 0, StopPicB_, true);
+				}
+				else if (score_ >= 10000 && score_ < 20000)
+				{
+					DrawGraph(0, 0, StopPicA_, true);
+				}
+				else if (score_ >= 20000)
+				{
+					DrawGraph(0, 0, StopPicS_, true);
 				}
 			}
 		}
 	}
+
 	if (startTime >= 0)
 	{
 		startTime -= deltaTime;
 	}
 
-	//if (startTime <= 0)
-	//{
-	//	if (limitTime >= 0)
-	//	{
-	//		limitTime -= deltaTime;
-
-	//		if (blockmoveCount_ == 0)
-	//		{
-	//			limitTime = 0;
-	//		}
-	//	}
-	//	// DrawNumber(score_, 1000, 350, 350, 9, 10, false)
-	//}
+	if (startTime <= 0)
+	{
+		if (limitTime >= 0)
+		{
+			limitTime -= deltaTime;
+		}
+		// DrawNumber(score_, 1000, 350, 350, 9, 10, false)
+	}
 }
 
 unsigned int Block::GetScore()
 {
    	return score_;
-}
-
-unsigned int Block::GetBlcokMoveCont(void)
-{
-	return blockmoveCount_;
-}
-
-unsigned int Block::GetClerarScore(void)
-{
-	return clearScore_;
 }
 
 float Block::GetLimitTime(void)
