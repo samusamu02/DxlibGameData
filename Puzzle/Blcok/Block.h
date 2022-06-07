@@ -55,7 +55,7 @@ private:
 	// タイマー系
 	float setTime = 5.0f;
 	float startTime = 4.0f;
-	float limitTime = 120.0f;
+	float limitTime = 90.0f;
 	float respawnTime;							// ブロック再配置までの時間
 	float deltaTime = 0.018f;
 
