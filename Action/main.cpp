@@ -1,57 +1,63 @@
 #include <DxLib.h>
-#include <math.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int cPosX = 300;
+int cPosY = 100;
+
+int bg;
+int circle;
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	int Handle;
-	int MaskScreen;
-	float Angle;
-	int i;
+	SetGraphMode(640, 480, 16);
+	ChangeWindowMode(true);
 
-	// ウインドウモードで起動
-	ChangeWindowMode(TRUE);
-
-	// ＤＸライブラリの初期化
-	if (DxLib_Init() < 0)
-		return -1;
-
-	// 画像を読み込む
-	Handle = LoadGraph("images/syounyudou.png");
-	// マスク用の画面を作成
-	MaskScreen = MakeScreen(640, 480, TRUE);
-
-	// 円の回転角度を初期化
-	Angle = 0.0f;
-
-	// メインループ
-	while (ProcessMessage() == 0)
+	// ＤＸライブラリ初期化処理
+	if (DxLib_Init() == -1)
 	{
-		// 円の回転角度を変更
-		Angle += 0.05f;
-
-		for (i = 0; i < 6; i++)
-		{
-			DrawGraph(i * 119, 0, Handle, TRUE);
-		}
-
-		// マスク用の画面に回転する円を描画
-		SetDrawScreen(MaskScreen);
-		ClearDrawScreen();
-
-		DrawCircle(
-			(int)(cos(Angle) * 160.0f) + 320,
-			(int)(sin(Angle) * 120.0f) + 240,
-			128, GetColor(255, 255, 255), TRUE);
-
-		// 描画先を裏画面に変更
-		SetDrawScreen(DX_SCREEN_BACK);
-		ClearDrawScreen();
-		// 裏画面の内容を表画面に反映
-		ScreenFlip();
+		// エラーが起きたら直ちに終了
+		return -1;
 	}
 
-	// ＤＸライブラリの後始末
+	SetDrawScreen(DX_SCREEN_BACK);
+
+
+	bg = LoadGraph("images/syounyudou.png");
+
+	// メインループ、ＥＳＣキーで終了
+	while (!ProcessMessage() && !(CheckHitKey(KEY_INPUT_ESCAPE)))
+	{
+		// 画面を初期化
+		ClearDrawScreen();
+
+		if (CheckHitKey(KEY_INPUT_UP) == 0)
+		{
+			cPosY++;
+		}
+		if (CheckHitKey(KEY_INPUT_DOWN) == 0)
+		{
+			cPosY--;
+		}
+		if (CheckHitKey(KEY_INPUT_LEFT) == 0)
+		{
+			cPosX++;
+		}
+		if (CheckHitKey(KEY_INPUT_RIGHT) == 0)
+		{
+			cPosX--;
+		}
+		DrawGraph(0, 0, bg, true);
+		CreateMaskScreen();
+		DrawMask(cPosX, cPosY, circle, DX_MASKTRANS_BLACK);
+
+		DeleteMaskScreen();
+		// 裏画面の内容を表画面に反映させます
+		ScreenFlip();
+
+	}
+
+	// ＤＸライブラリ使用の終了処理
 	DxLib_End();
 
+	// ソフトの終了
 	return 0;
 }
