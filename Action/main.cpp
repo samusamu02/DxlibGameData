@@ -1,63 +1,105 @@
 #include <DxLib.h>
+#include <math.h>
 
-int cPosX = 300;
-int cPosY = 100;
-
-int bg;
-int circle;
-
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	SetGraphMode(640, 480, 16);
+	int Handle;
+	int player;
+	int posX;
+	int posY;
+
+	int MaskScreen;
+	int TempScreen;
+	int i;
+	float speed;
+	int size;
+
+	// ウインドウモードで起動
 	ChangeWindowMode(true);
 
-	// ＤＸライブラリ初期化処理
-	if (DxLib_Init() == -1)
+	// ＤＸライブラリの初期化
+	if (DxLib_Init() < 0)
 	{
-		// エラーが起きたら直ちに終了
 		return -1;
 	}
 
-	SetDrawScreen(DX_SCREEN_BACK);
+	// 画像を読み込む
+	Handle = LoadGraph("images/syounyudou.png");
+	player = LoadGraph("images/player.png");
 
+	// マスクと合成するための仮画面を作成
+	TempScreen = MakeScreen(640, 480, true);
 
-	bg = LoadGraph("images/syounyudou.png");
+	// マスク用の画面を作成
+	MaskScreen = MakeScreen(640, 480, true);
+	posX = 0;
+	posY = 0;
+	speed = 3.0f;
 
-	// メインループ、ＥＳＣキーで終了
-	while (!ProcessMessage() && !(CheckHitKey(KEY_INPUT_ESCAPE)))
+	// メインループ
+	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE)==0)
 	{
-		// 画面を初期化
+
+		if (CheckHitKey(KEY_INPUT_RIGHT))
+		{
+			posX += speed;
+		}
+		if (CheckHitKey(KEY_INPUT_LEFT))
+		{
+			posX -= speed;
+		}
+		if (CheckHitKey(KEY_INPUT_UP))
+		{
+			posY -= speed;
+		}
+		if (CheckHitKey(KEY_INPUT_DOWN))
+		{
+			posY += speed;
+		}
+		if (CheckHitKey(KEY_INPUT_SPACE))
+		{
+			size = 100;
+		}
+		else
+		{
+			size = 50;
+		}
+
+		// 仮画面全体に画像を描画
+		SetDrawScreen(TempScreen);
 		ClearDrawScreen();
 
-		if (CheckHitKey(KEY_INPUT_UP) == 0)
-		{
-			cPosY++;
-		}
-		if (CheckHitKey(KEY_INPUT_DOWN) == 0)
-		{
-			cPosY--;
-		}
-		if (CheckHitKey(KEY_INPUT_LEFT) == 0)
-		{
-			cPosX++;
-		}
-		if (CheckHitKey(KEY_INPUT_RIGHT) == 0)
-		{
-			cPosX--;
-		}
-		DrawGraph(0, 0, bg, true);
-		CreateMaskScreen();
-		DrawMask(cPosX, cPosY, circle, DX_MASKTRANS_BLACK);
+		DrawGraph(0, 0, Handle, true);
+		DrawGraph(posX + 295, posY + 220, player, true);
 
-		DeleteMaskScreen();
-		// 裏画面の内容を表画面に反映させます
+		// マスク用の円を描画
+		SetDrawScreen(MaskScreen);
+		ClearDrawScreen();
+
+		DrawCircle(
+			posX + 320,
+			posY + 240,
+			size, 0x000000, true);
+
+
+		// 描画先を裏画面に変更
+		SetDrawScreen(DX_SCREEN_BACK);
+		ClearDrawScreen();
+
+		// 描画時の合成画像にマスク画面を設定
+		// ( マスク画面のアルファ値と仮画面のアルファ値を合成する )
+		SetBlendGraphParam(MaskScreen, DX_BLENDGRAPHTYPE_ALPHA);
+		// 仮画面を裏画面に描画( マスク画面のアルファ値も使用しつつ )
+		DrawGraph(0, 0, TempScreen, true);
+		// 合成設定を解除
+		SetBlendGraphParam(-1, DX_BLENDGRAPHTYPE_NORMAL);
+
+		// 裏画面の内容を表画面に反映
 		ScreenFlip();
-
 	}
 
-	// ＤＸライブラリ使用の終了処理
+	// ＤＸライブラリの後始末
 	DxLib_End();
 
-	// ソフトの終了
 	return 0;
 }
