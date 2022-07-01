@@ -64,6 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			size = 50;
 		}
+		
+
 
 		// ‰¼‰æ–Ê‘S‘Ì‚É‰æ‘œ‚ð•`‰æ
 		SetDrawScreen(TempScreen);
