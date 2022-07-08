@@ -1,5 +1,80 @@
 #include <DxLib.h>
 #include <math.h>
+#include <array>
+#include <vector>
+#include <cassert>
+
+struct Vector2
+{
+	float x;
+	float y;
+};
+
+struct Color
+{
+	float r = 1.0f;
+	float g = 1.0f;
+	float b = 1.0f;
+	float a = 1.0f;
+};
+
+struct PointLight
+{
+	Color color;
+	Vector2 pos{0.0f,0.0f};
+	float k = 5000.0f;
+	float pd = 0.0f;
+};
+
+void MyDrawGraph(int x,int y,int width,int height,int firstHandle,int psHandle)
+{
+	std::array<VERTEX2DSHADER, 4> verts;
+
+	GetGraphSize(firstHandle, &width, &height);
+
+	for (auto& v : verts)
+	{
+		v.rhw = 1.0;
+		v.dif = DxLib::GetColorU8(255, 255, 255, 255);
+		v.spc = DxLib::GetColorU8(255, 255, 255, 255);
+		v.su = 0.0f;
+		v.sv = 0.0f;
+		v.pos.z = 0.0f;
+	}
+
+	// 左上
+	verts[0].rhw = 1.0;
+	verts[0].pos.x = x;
+	verts[0].pos.y = y;
+	verts[0].u = 0.0f;
+	verts[0].v = 0.0f;
+
+	// 右上
+	verts[1].rhw = 1.0;
+	verts[1].pos.x = x + width;
+	verts[1].pos.y = y;
+	verts[1].u = 1.0f;
+	verts[1].v = 0.0f;
+
+	// 左下
+	verts[2].rhw = 1.0;
+	verts[2].pos.x = x;
+	verts[2].pos.y = y + height;
+	verts[2].u = 0.0f;
+	verts[2].v = 1.0f;
+
+	// 右下
+	verts[3].rhw = 1.0;
+	verts[3].pos.x = x + width;
+	verts[3].pos.y = y + height;
+	verts[3].u = 1.0f;
+	verts[3].v = 1.0f;
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
+	SetUsePixelShader(psHandle);
+	SetUseTextureToShader(0, firstHandle);
+	DrawPrimitive2DToShader(verts.data(), verts.size(), DX_PRIMTYPE_TRIANGLESTRIP);
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -23,6 +98,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return -1;
 	}
 
+	// ピクセルシェーダーの読み込み
+	int ps = LoadPixelShader("PixelShader.pso");
+
 	// 画像を読み込む
 	Handle = LoadGraph("images/syounyudou.png");
 	player = LoadGraph("images/player.png");
@@ -32,6 +110,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// マスク用の画面を作成
 	MaskScreen = MakeScreen(640, 480, true);
+
+	std::vector<PointLight> light;
+
+	light.resize(2);
+
+	auto size = sizeof(light[0]) * light.size();
+
+	int cbuf = CreateShaderConstantBuffer(size);
+	PointLight* buff = reinterpret_cast<PointLight*>(GetBufferShaderConstantBuffer(cbuf));
+
+	light[0].pos.x = 0.0f;
+
+
 	posX = 0;
 	posY = 0;
 	speed = 3.0f;
@@ -64,8 +155,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			size = 50;
 		}
-		
-
 
 		// 仮画面全体に画像を描画
 		SetDrawScreen(TempScreen);
