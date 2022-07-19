@@ -1,10 +1,13 @@
 #include <DxLib.h>
-#include <math.h>
+#include <cassert>
 #include <array>
 #include <vector>
-#include <cassert>
+#include <cmath>
 
-struct Vector2
+constexpr int screenSizex = 720;
+constexpr int screenSizey = 480;
+
+struct Vec2
 {
 	float x;
 	float y;
@@ -21,18 +24,17 @@ struct Color
 struct PointLight
 {
 	Color color;
-	Vector2 pos{0.0f,0.0f};
+	Vec2 pos{ 0.0f,0.0f };
 	float k = 5000.0f;
 	float pd = 0.0f;
 };
 
-void MyDrawGraph(int x,int y,int width,int height,int firstHandle,int psHandle)
+void ShadeDrawGraph(int x, int y, int width, int height, int imageHandle,int psHandle)
 {
-	std::array<VERTEX2DSHADER, 4> verts;
+	GetGraphSize(imageHandle, &width, &height);
+	std::array<VERTEX2DSHADER, 4> vertx;
 
-	GetGraphSize(firstHandle, &width, &height);
-
-	for (auto& v : verts)
+	for (auto& v : vertx)
 	{
 		v.rhw = 1.0;
 		v.dif = DxLib::GetColorU8(255, 255, 255, 255);
@@ -43,76 +45,54 @@ void MyDrawGraph(int x,int y,int width,int height,int firstHandle,int psHandle)
 	}
 
 	// 左上
-	verts[0].rhw = 1.0;
-	verts[0].pos.x = x;
-	verts[0].pos.y = y;
-	verts[0].u = 0.0f;
-	verts[0].v = 0.0f;
+	vertx[0].rhw = 1.0;
+	vertx[0].pos.x = x;
+	vertx[0].pos.y = y;
+	vertx[0].u = 0.0f;
+	vertx[0].v = 0.0f;
 
 	// 右上
-	verts[1].rhw = 1.0;
-	verts[1].pos.x = x + width;
-	verts[1].pos.y = y;
-	verts[1].u = 1.0f;
-	verts[1].v = 0.0f;
+	vertx[1].rhw = 1.0;
+	vertx[1].pos.x = x + width;
+	vertx[1].pos.y = y;
+	vertx[1].u = 1.0f;
+	vertx[1].v = 0.0f;
 
 	// 左下
-	verts[2].rhw = 1.0;
-	verts[2].pos.x = x;
-	verts[2].pos.y = y + height;
-	verts[2].u = 0.0f;
-	verts[2].v = 1.0f;
+	vertx[2].rhw = 1.0;
+	vertx[2].pos.x = x;
+	vertx[2].pos.y = y + height;
+	vertx[2].u = 0.0f;
+	vertx[2].v = 1.0f;
 
 	// 右下
-	verts[3].rhw = 1.0;
-	verts[3].pos.x = x + width;
-	verts[3].pos.y = y + height;
-	verts[3].u = 1.0f;
-	verts[3].v = 1.0f;
+	vertx[3].rhw = 1.0;
+	vertx[3].pos.x = x + width;
+	vertx[3].pos.y = y + height;
+	vertx[3].u = 1.0f;
+	vertx[3].v = 1.0f;
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
 	SetUsePixelShader(psHandle);
-	SetUseTextureToShader(0, firstHandle);
-	DrawPrimitive2DToShader(verts.data(), verts.size(), DX_PRIMTYPE_TRIANGLESTRIP);
+	SetUseTextureToShader(0, imageHandle);
+	DrawPrimitive2DToShader(vertx.data(), vertx.size(), DX_PRIMTYPE_TRIANGLESTRIP);
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
-	int Handle;
-	int player;
-	int posX;
-	int posY;
-
-	int MaskScreen;
-	int TempScreen;
-	int i;
-	float speed;
-	int size;
-
-	// ウインドウモードで起動
+	SetGraphMode(screenSizex, screenSizey, 32);
 	ChangeWindowMode(true);
+	assert(DxLib_Init() != -1);
+	int ps = LoadPixelShader("PointLight.pso");
 
-	// ＤＸライブラリの初期化
-	if (DxLib_Init() < 0)
-	{
-		return -1;
-	}
 
-	// ピクセルシェーダーの読み込み
-	int ps = LoadPixelShader("PixelShader.pso");
-
-	// 画像を読み込む
-	Handle = LoadGraph("images/syounyudou.png");
-	player = LoadGraph("images/player.png");
-
-	// マスクと合成するための仮画面を作成
-	TempScreen = MakeScreen(640, 480, true);
-
-	// マスク用の画面を作成
-	MaskScreen = MakeScreen(640, 480, true);
-
+	int scr = MakeScreen(screenSizex, screenSizey, true);
+	int MaskScreen = MakeScreen(screenSizex, screenSizey, true);
+	int image = LoadGraph("images/syounyudou.png");
+	int pChara = LoadGraph("images/player.png");
 	std::vector<PointLight> light;
 
+	// ライト二つ用意
 	light.resize(2);
 
 	auto size = sizeof(light[0]) * light.size();
@@ -120,77 +100,64 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int cbuf = CreateShaderConstantBuffer(size);
 	PointLight* buff = reinterpret_cast<PointLight*>(GetBufferShaderConstantBuffer(cbuf));
 
-	light[0].pos.x = 0.0f;
+	light[1].pos.x = 0.0f;
+	light[1].pos.y = 0.0f;
+	light[1].k = 10000.0f;
 
+	std::copy(light.begin(), light.end(), buff);
+	UpdateShaderConstantBuffer(cbuf);
 
-	posX = 0;
-	posY = 0;
-	speed = 3.0f;
-
-	// メインループ
-	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE)==0)
+	while (ProcessMessage() == 0)
 	{
-
-		if (CheckHitKey(KEY_INPUT_RIGHT))
-		{
-			posX += speed;
-		}
+		//int x, y;
+		//GetMousePoint(&x, &y);
+		//light[0].pos.x = x;
+		//light[0].pos.y = y;
+		int speed = 3;
 		if (CheckHitKey(KEY_INPUT_LEFT))
 		{
-			posX -= speed;
+			light[0].pos.x -= speed;
+		}
+		if (CheckHitKey(KEY_INPUT_RIGHT))
+		{
+			light[0].pos.x += speed;
 		}
 		if (CheckHitKey(KEY_INPUT_UP))
 		{
-			posY -= speed;
+			// light[0].k += 100.0f;
+			light[0].pos.y -= speed;
 		}
 		if (CheckHitKey(KEY_INPUT_DOWN))
 		{
-			posY += speed;
+			// light[0].k -= 100.0f;
+			light[0].pos.y += speed;
 		}
-		if (CheckHitKey(KEY_INPUT_SPACE))
-		{
-			size = 100;
-		}
-		else
-		{
-			size = 50;
-		}
+		light[0].k = 3000.0f;
+		std::copy(light.begin(), light.end(), buff);
 
-		// 仮画面全体に画像を描画
-		SetDrawScreen(TempScreen);
-		ClearDrawScreen();
+		SetDrawScreen(scr);
+		ClsDrawScreen();
 
-		DrawGraph(0, 0, Handle, true);
-		DrawGraph(posX + 295, posY + 220, player, true);
+		// 黒く塗る
+		//DrawBox(0, 0, 1280, 720, 0x000000, true);
 
-		// マスク用の円を描画
-		SetDrawScreen(MaskScreen);
-		ClearDrawScreen();
+		// 黒く塗った上にライトの色を塗る
+		UpdateShaderConstantBuffer(cbuf);
+		SetShaderConstantBuffer(cbuf, DX_SHADERTYPE_PIXEL, 0);
+		ShadeDrawGraph(0, 0, screenSizex, screenSizey, scr, ps);
 
-		DrawCircle(
-			posX + 320,
-			posY + 240,
-			size, 0x000000, true);
-
-
-		// 描画先を裏画面に変更
 		SetDrawScreen(DX_SCREEN_BACK);
-		ClearDrawScreen();
+		ClsDrawScreen();
+		DrawGraph(0, 0, image, true);
+		DrawGraph(light[0].pos.x - 25, light[0].pos.y - 20, pChara, true);
 
-		// 描画時の合成画像にマスク画面を設定
-		// ( マスク画面のアルファ値と仮画面のアルファ値を合成する )
-		SetBlendGraphParam(MaskScreen, DX_BLENDGRAPHTYPE_ALPHA);
-		// 仮画面を裏画面に描画( マスク画面のアルファ値も使用しつつ )
-		DrawGraph(0, 0, TempScreen, true);
-		// 合成設定を解除
-		SetBlendGraphParam(-1, DX_BLENDGRAPHTYPE_NORMAL);
+		// 背景とライトの色を乗算合成
+		SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
+		DrawGraph(0, 0, scr, true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 
-		// 裏画面の内容を表画面に反映
 		ScreenFlip();
 	}
-
-	// ＤＸライブラリの後始末
 	DxLib_End();
-
 	return 0;
 }
